@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fiscio App - Rehabilitación</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app-container">
+        
+        <!-- Navbar -->
+        <nav class="navbar">
+            <h1 class="nav-title">Fiscio Ritmo</h1>
+            <button id="btn-history-view" class="icon-btn" aria-label="Ver Historial">🗓️</button>
+        </nav>
+
+        <!-- Main View: List of Exercises -->
+        <main id="view-main" class="view active">
+            <p class="subtitle">Rutina diaria de rehabilitación</p>
+            <div id="exercise-list" class="exercise-list">
+                <!-- Injected via JS -->
+            </div>
+            <div class="completion-container">
+                <button id="btn-complete-all" class="btn-primary" disabled>Marcar Rutina como Completada</button>
+            </div>
+        </main>
+
+        <!-- Detail View: Active Exercise -->
+        <main id="view-detail" class="view hidden">
+            <button id="btn-back-main" class="btn-secondary back-btn">← Volver</button>
+            
+            <div class="exercise-header">
+                <h2 id="detail-title">Nombre del Ejercicio</h2>
+                <div class="badges">
+                    <span id="detail-sets" class="badge">3 Series</span>
+                    <span id="detail-reps" class="badge">10 Reps</span>
+                </div>
+            </div>
+
+            <div class="exercise-info">
+                <div class="info-card">
+                    <h3>🛠️ Cómo hacerlo</h3>
+                    <p id="detail-how">...</p>
+                </div>
+                <div class="info-card">
+                    <h3>💡 Por qué es importante</h3>
+                    <p id="detail-why">...</p>
+                </div>
+            </div>
+
+            <div class="timer-section">
+                <div class="timer-display">
+                    <span id="timer-text">00:00</span>
+                    <p id="timer-state" class="state-text">Listo</p>
+                </div>
+                
+                <div class="timer-controls">
+                    <button id="btn-start-timer" class="btn-primary pulse">▶ Iniciar Serie</button>
+                    <button id="btn-stop-timer" class="btn-danger hidden">⬛ Detener</button>
+                </div>
+                
+                <div class="progress-section">
+                    <p>Series completadas: <strong id="sets-completed">0</strong> / <span id="sets-total">3</span></p>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="completion-container" style="margin-top: 2rem;">
+                 <button id="btn-complete-exercise" class="btn-success hidden">✔ Ejercicio Terminado</button>
+            </div>
+        </main>
+
+        <!-- History View -->
+        <main id="view-history" class="view hidden">
+            <button id="btn-back-main-hist" class="btn-secondary back-btn">← Volver</button>
+            <h2>Tu Historial</h2>
+            <div id="history-list" class="history-list">
+                <!-- Injected via JS -->
+            </div>
+            <button id="btn-clear-history" class="btn-danger outline" style="margin-top: 2rem; width:100%;">Borrar Historial</button>
+        </main>
+
+    </div>
+
+    <!-- Scripts modularizados -->
+    <script type="module" src="data.js"></script>
+    <script type="module" src="audio.js"></script>
+    <script type="module" src="timer.js"></script>
+    <script type="module" src="storage.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
