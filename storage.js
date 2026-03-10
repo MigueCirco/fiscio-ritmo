@@ -10,8 +10,11 @@ export class StorageManager {
         return data ? JSON.parse(data) : {};
     }
 
-    saveExercise(exerciseId, exerciseTitle) {
-        const dateKey = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    saveExercise(exerciseId, exerciseTitle, exerciseDetails) {
+        const now = new Date();
+        const dateKey = now.toISOString().split('T')[0]; // YYYY-MM-DD
+        const timeString = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        
         const history = this.getHistory();
 
         if (!history[dateKey]) {
@@ -21,7 +24,12 @@ export class StorageManager {
         // Avoid duplicates on the same day if they redo it
         const exists = history[dateKey].find(e => e.id === exerciseId);
         if (!exists) {
-            history[dateKey].push({ id: exerciseId, title: exerciseTitle });
+            history[dateKey].push({ 
+                id: exerciseId, 
+                title: exerciseTitle, 
+                time: timeString,
+                details: exerciseDetails
+            });
             localStorage.setItem(this.storageKey, JSON.stringify(history));
         }
     }

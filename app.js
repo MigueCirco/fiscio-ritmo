@@ -155,7 +155,11 @@ class App {
 
         // Completion
         this.btnCompleteExercise.addEventListener('click', () => {
-            storageManager.saveExercise(this.activeExercise.id, this.activeExercise.title);
+            const details = this.activeExercise.timerType === 'interval' 
+                ? `${this.activeExercise.sets} Series x ${this.activeExercise.workTime}s Trab / ${this.activeExercise.restTime}s Desc`
+                : `${this.activeExercise.sets} Series x ${this.activeExercise.reps} Reps`;
+                
+            storageManager.saveExercise(this.activeExercise.id, this.activeExercise.title, details);
             this.renderExerciseList();
             this.switchView(this.viewMain);
             this.checkRoutineCompletion();
@@ -262,14 +266,22 @@ class App {
             div.className = 'history-item';
             
             // Format date nicely
-            const dateObj = new Date(date);
-            // Adjust for timezone offset if strictly needed, but let's just show string
+            const dateObj = new Date(date + 'T12:00:00'); // appended time helps avoid timezone offset issues on simple dates
             const formattedDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
+            let listHtml = items.map(i => `
+                <li style="margin-bottom: 0.8rem;">
+                    <div style="font-weight: 600; color: var(--text-main);">${i.title}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+                        <span style="color: var(--accent); font-weight: 600;">⏱ ${i.time || 'N/A'} hrs</span> • ${i.details || 'Sin detalles'}
+                    </div>
+                </li>
+            `).join('');
+
             div.innerHTML = `
                 <div class="history-date">${formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)}</div>
-                <ul class="history-exercises">
-                    ${items.map(i => `<li>${i.title}</li>`).join('')}
+                <ul class="history-exercises" style="margin-top: 0.8rem;">
+                    ${listHtml}
                 </ul>
             `;
             this.historyListEl.appendChild(div);
