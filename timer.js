@@ -33,7 +33,7 @@ export class Timer {
         // Initialization based on timer type
         if (exercise.timerType === 'regular') {
             this.startRegularSet();
-        } else if (exercise.timerType === 'interval') {
+        } else if (exercise.timerType === 'interval' || exercise.timerType === 'kegel') {
             this.startIntervalSet();
         }
     }
@@ -72,7 +72,7 @@ export class Timer {
         this.displayElement.className = "rest";
         
         this.updateDisplay(this.timeLeft);
-        audioController.playRestSound();
+        this.playRestCue();
         
         this.timerId = setInterval(() => {
             this.timeLeft--;
@@ -80,7 +80,7 @@ export class Timer {
             
             if (this.timeLeft <= 0) {
                 clearInterval(this.timerId);
-                audioController.playWorkSound();
+                this.playWorkCue();
                 this.isActive = false;
                 
                 // Allow user to start next set manually
@@ -122,32 +122,40 @@ export class Timer {
                 if (this.currentSet >= this.currentExercise.sets) {
                     this.completeExercise();
                 } else {
-                    // Start long rest between sets if needed, or just stop and wait
-                    this.isActive = false;
-                    this.stateElement.textContent = "SERIE COMPLETADA";
-                    this.stateElement.className = "state-text";
-                    this.displayElement.textContent = "00:00";
-                    audioController.playCompleteSound();
-                    
-                    if (this.onWaitingNextSet) this.onWaitingNextSet();
+                    // Kegel can include a timed rest between sets
+                    if (this.currentExercise.timerType === 'kegel') {
+                        this.startKegelSetRest();
+                    } else {
+                        this.isActive = false;
+                        this.stateElement.textContent = "SERIE COMPLETADA";
+                        this.stateElement.className = "state-text";
+                        this.displayElement.textContent = "00:00";
+                        this.playCompleteCue();
+
+                        if (this.onWaitingNextSet) this.onWaitingNextSet();
+                    }
                 }
                 return;
             }
 
             this.timeLeft = this.currentExercise.workTime;
-            this.stateElement.textContent = `TRABAJO (${this.intervalCount}/${this.currentExercise.reps})`;
+            const workLabel = this.currentExercise.timerType === 'kegel' ? 'ACTIVAR PC' : 'TRABAJO';
+            this.stateElement.textContent = `${workLabel} (${this.intervalCount}/${this.currentExercise.reps})`;
             this.stateElement.className = "state-text work";
             this.displayElement.className = "work";
-            audioController.playWorkSound();
+            this.playWorkCue();
             
         } else {
             // Rest phase
             this.isWorking = false;
-            this.timeLeft = this.currentExercise.restTime;
-            this.stateElement.textContent = "DESCANSO CORTO";
+            const repRest = this.currentExercise.timerType === 'kegel'
+                ? (this.currentExercise.repRestTime ?? this.currentExercise.restTime)
+                : this.currentExercise.restTime;
+            this.timeLeft = repRest;
+            this.stateElement.textContent = this.currentExercise.timerType === 'kegel' ? "SOLTAR / RELAJAR" : "DESCANSO CORTO";
             this.stateElement.className = "state-text rest";
             this.displayElement.className = "rest";
-            audioController.playRestSound();
+            this.playRestCue();
         }
 
         this.updateDisplay(this.timeLeft);
@@ -169,6 +177,37 @@ export class Timer {
         }, 1000);
     }
 
+    startKegelSetRest() {
+        const setRest = this.currentExercise.setRestTime ?? 30;
+        this.timeLeft = setRest;
+        this.stateElement.textContent = "DESCANSO ENTRE SERIES";
+        this.stateElement.className = "state-text rest";
+        this.displayElement.className = "rest";
+        this.playRestCue();
+        this.updateDisplay(this.timeLeft);
+
+        this.timerId = setInterval(() => {
+            if (!this.isActive) {
+                clearInterval(this.timerId);
+                return;
+            }
+
+            this.timeLeft--;
+            this.updateDisplay(this.timeLeft);
+
+            if (this.timeLeft <= 0) {
+                clearInterval(this.timerId);
+                this.isActive = false;
+                this.stateElement.textContent = "LISTO PARA LA SIGUIENTE";
+                this.stateElement.className = "state-text";
+                this.displayElement.className = "";
+                this.playWorkCue();
+
+                if (this.onWaitingNextSet) this.onWaitingNextSet();
+            }
+        }, 1000);
+    }
+
     completeExercise() {
         this.isActive = false;
         clearInterval(this.timerId);
@@ -176,7 +215,7 @@ export class Timer {
         this.stateElement.className = "state-text work";
         this.displayElement.className = "work";
         this.displayElement.textContent = "✓";
-        audioController.playCompleteSound();
+        this.playCompleteCue();
         
         if (this.onExerciseComplete) this.onExerciseComplete();
     }
@@ -193,5 +232,29 @@ export class Timer {
         this.stateElement.className = "state-text";
         this.displayElement.className = "";
         this.displayElement.textContent = "00:00";
+    }
+
+    playWorkCue() {
+        if (this.currentExercise?.timerType === 'kegel') {
+            audioController.vibrateWork();
+            return;
+        }
+        audioController.playWorkSound();
+    }
+
+    playRestCue() {
+        if (this.currentExercise?.timerType === 'kegel') {
+            audioController.vibrateRest();
+            return;
+        }
+        audioController.playRestSound();
+    }
+
+    playCompleteCue() {
+        if (this.currentExercise?.timerType === 'kegel') {
+            audioController.vibrateComplete();
+            return;
+        }
+        audioController.playCompleteSound();
     }
 }
