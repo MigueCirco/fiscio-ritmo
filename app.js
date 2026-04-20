@@ -1,11 +1,8 @@
 // app.js - Main application logic
 
-import { exercises as baseExercises } from './data.js';
-import { kegelExercises } from './kegel-data.js';
+import { exercises } from './data.js';
 import { Timer } from './timer.js';
 import { storageManager } from './storage.js';
-
-const exercises = [...kegelExercises, ...baseExercises];
 
 class App {
     constructor() {
@@ -51,20 +48,6 @@ class App {
         this.initSW();
 
         this.init();
-    }
-
-    getExerciseDetailText(exercise) {
-        if (exercise.timerType === 'kegel') {
-            const repRest = exercise.repRestTime ?? exercise.restTime;
-            const setRest = exercise.setRestTime ?? 30;
-            return `${exercise.reps} reps • ${exercise.workTime}s activar / ${repRest}s soltar • ${setRest}s entre series`;
-        }
-
-        if (exercise.timerType === 'interval') {
-            return `${exercise.workTime}s trab / ${exercise.restTime}s desc`;
-        }
-
-        return `${exercise.reps} Reps`;
     }
 
     initSW() {
@@ -228,7 +211,15 @@ class App {
         // Populate UI
         this.detailTitle.textContent = exercise.title;
         this.detailSets.textContent = `${exercise.sets} Series`;
-        this.detailReps.textContent = this.getExerciseDetailText(exercise);
+        if (exercise.timerType === 'kegel') {
+            const repRest = exercise.repRestTime ?? exercise.restTime;
+            const setRest = exercise.setRestTime ?? 30;
+            this.detailReps.textContent = `${exercise.reps} reps • ${exercise.workTime}s activar / ${repRest}s soltar • ${setRest}s entre series`;
+        } else if (exercise.timerType === 'interval') {
+            this.detailReps.textContent = `${exercise.workTime}s trab / ${exercise.restTime}s desc`;
+        } else {
+            this.detailReps.textContent = `${exercise.reps} Reps`;
+        }
         this.detailHow.textContent = exercise.howTo;
         this.detailWhy.textContent = exercise.why;
         
