@@ -33,7 +33,7 @@ export class Timer {
         // Initialization based on timer type
         if (exercise.timerType === 'regular') {
             this.startRegularSet();
-        } else if (exercise.timerType === 'interval') {
+        } else if (exercise.timerType === 'interval' || exercise.timerType === 'kegel') {
             this.startIntervalSet();
         }
     }
@@ -72,7 +72,7 @@ export class Timer {
         this.displayElement.className = "rest";
         
         this.updateDisplay(this.timeLeft);
-        audioController.playRestSound();
+        this.playRestCue();
         
         this.timerId = setInterval(() => {
             this.timeLeft--;
@@ -80,7 +80,7 @@ export class Timer {
             
             if (this.timeLeft <= 0) {
                 clearInterval(this.timerId);
-                audioController.playWorkSound();
+                this.playWorkCue();
                 this.isActive = false;
                 
                 // Allow user to start next set manually
@@ -127,7 +127,7 @@ export class Timer {
                     this.stateElement.textContent = "SERIE COMPLETADA";
                     this.stateElement.className = "state-text";
                     this.displayElement.textContent = "00:00";
-                    audioController.playCompleteSound();
+                    this.playCompleteCue();
                     
                     if (this.onWaitingNextSet) this.onWaitingNextSet();
                 }
@@ -135,19 +135,20 @@ export class Timer {
             }
 
             this.timeLeft = this.currentExercise.workTime;
-            this.stateElement.textContent = `TRABAJO (${this.intervalCount}/${this.currentExercise.reps})`;
+            const workLabel = this.currentExercise.timerType === 'kegel' ? 'ACTIVAR PC' : 'TRABAJO';
+            this.stateElement.textContent = `${workLabel} (${this.intervalCount}/${this.currentExercise.reps})`;
             this.stateElement.className = "state-text work";
             this.displayElement.className = "work";
-            audioController.playWorkSound();
+            this.playWorkCue();
             
         } else {
             // Rest phase
             this.isWorking = false;
             this.timeLeft = this.currentExercise.restTime;
-            this.stateElement.textContent = "DESCANSO CORTO";
+            this.stateElement.textContent = this.currentExercise.timerType === 'kegel' ? "SOLTAR / RELAJAR" : "DESCANSO CORTO";
             this.stateElement.className = "state-text rest";
             this.displayElement.className = "rest";
-            audioController.playRestSound();
+            this.playRestCue();
         }
 
         this.updateDisplay(this.timeLeft);
@@ -176,7 +177,7 @@ export class Timer {
         this.stateElement.className = "state-text work";
         this.displayElement.className = "work";
         this.displayElement.textContent = "✓";
-        audioController.playCompleteSound();
+        this.playCompleteCue();
         
         if (this.onExerciseComplete) this.onExerciseComplete();
     }
@@ -193,5 +194,29 @@ export class Timer {
         this.stateElement.className = "state-text";
         this.displayElement.className = "";
         this.displayElement.textContent = "00:00";
+    }
+
+    playWorkCue() {
+        if (this.currentExercise?.timerType === 'kegel') {
+            audioController.vibrateWork();
+            return;
+        }
+        audioController.playWorkSound();
+    }
+
+    playRestCue() {
+        if (this.currentExercise?.timerType === 'kegel') {
+            audioController.vibrateRest();
+            return;
+        }
+        audioController.playRestSound();
+    }
+
+    playCompleteCue() {
+        if (this.currentExercise?.timerType === 'kegel') {
+            audioController.vibrateComplete();
+            return;
+        }
+        audioController.playCompleteSound();
     }
 }
