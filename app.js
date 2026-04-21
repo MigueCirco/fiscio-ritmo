@@ -1,8 +1,11 @@
 // app.js - Main application logic
 
-import { exercises } from './data.js';
+import { exercises as baseExercises } from './data.js';
+import { kegelExercises } from './kegel-data.js';
 import { Timer } from './timer.js';
 import { storageManager } from './storage.js';
+
+const exercises = [...kegelExercises, ...baseExercises];
 
 class App {
     constructor() {
