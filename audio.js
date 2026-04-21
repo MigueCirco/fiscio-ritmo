@@ -55,23 +55,6 @@ class AudioController {
         setTimeout(() => this.playSound(500, 'sine', 0.2), 200);
         setTimeout(() => this.playSound(600, 'sine', 0.4), 400);
     }
-
-    vibrate(pattern) {
-        if (!('vibrate' in navigator)) return;
-        navigator.vibrate(pattern);
-    }
-
-    vibrateWork() {
-        this.vibrate([110, 50, 110]);
-    }
-
-    vibrateRest() {
-        this.vibrate([70, 40, 70]);
-    }
-
-    vibrateComplete() {
-        this.vibrate([140, 50, 140, 50, 220]);
-    }
 }
 
 export const audioController = new AudioController();

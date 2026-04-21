@@ -155,15 +155,9 @@ class App {
 
         // Completion
         this.btnCompleteExercise.addEventListener('click', () => {
-            let details = `${this.activeExercise.sets} Series x ${this.activeExercise.reps} Reps`;
-
-            if (this.activeExercise.timerType === 'kegel') {
-                const repRest = this.activeExercise.repRestTime ?? this.activeExercise.restTime;
-                const setRest = this.activeExercise.setRestTime ?? 30;
-                details = `${this.activeExercise.sets} Series x ${this.activeExercise.workTime}s Act / ${repRest}s Solt / ${setRest}s Entre series`;
-            } else if (this.activeExercise.timerType === 'interval') {
-                details = `${this.activeExercise.sets} Series x ${this.activeExercise.workTime}s Trab / ${this.activeExercise.restTime}s Desc`;
-            }
+            const details = this.activeExercise.timerType === 'interval' 
+                ? `${this.activeExercise.sets} Series x ${this.activeExercise.workTime}s Trab / ${this.activeExercise.restTime}s Desc`
+                : `${this.activeExercise.sets} Series x ${this.activeExercise.reps} Reps`;
                 
             storageManager.saveExercise(this.activeExercise.id, this.activeExercise.title, details);
             this.renderExerciseList();
@@ -211,15 +205,7 @@ class App {
         // Populate UI
         this.detailTitle.textContent = exercise.title;
         this.detailSets.textContent = `${exercise.sets} Series`;
-        if (exercise.timerType === 'kegel') {
-            const repRest = exercise.repRestTime ?? exercise.restTime;
-            const setRest = exercise.setRestTime ?? 30;
-            this.detailReps.textContent = `${exercise.reps} reps • ${exercise.workTime}s activar / ${repRest}s soltar • ${setRest}s entre series`;
-        } else if (exercise.timerType === 'interval') {
-            this.detailReps.textContent = `${exercise.workTime}s trab / ${exercise.restTime}s desc`;
-        } else {
-            this.detailReps.textContent = `${exercise.reps} Reps`;
-        }
+        this.detailReps.textContent = exercise.timerType === 'interval' ? `${exercise.workTime}s trab / ${exercise.restTime}s desc` : `${exercise.reps} Reps`;
         this.detailHow.textContent = exercise.howTo;
         this.detailWhy.textContent = exercise.why;
         
@@ -256,7 +242,7 @@ class App {
                     <h3>${ex.title}</h3>
                     ${isCompleted ? '<span style="color: var(--work-color)">✓</span>' : ''}
                 </div>
-                <p>3 Series • ${ex.timerType === 'interval' || ex.timerType === 'kegel' ? 'Temporizado' : 'Por reps'}</p>
+                <p>3 Series • ${ex.timerType === 'interval' ? 'Intervalos' : 'Por reps'}</p>
             `;
 
             card.addEventListener('click', () => this.openExercise(ex));
