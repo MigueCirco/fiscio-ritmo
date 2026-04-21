@@ -1,10 +1,9 @@
-const CACHE_NAME = 'fiscio-v2';
+const CACHE_NAME = 'fiscio-v3';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
-  './kegel-data.js',
   './data.js',
   './timer.js',
   './audio.js',

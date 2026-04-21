@@ -1,11 +1,8 @@
 // app.js - Main application logic
 
 import { exercises } from './data.js';
-import { kegelExercises } from './kegel-data.js';
 import { Timer } from './timer.js';
 import { storageManager } from './storage.js';
-
-exercises.unshift(...kegelExercises);
 
 class App {
     constructor() {
